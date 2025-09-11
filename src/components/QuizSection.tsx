@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
-import { CheckCircle, Brain, ArrowLeft, ArrowRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { CheckCircle, Brain, ArrowLeft, ArrowRight, RotateCcw } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 interface Question {
   id: number;
@@ -43,11 +45,34 @@ const questions: Question[] = [
   }
 ];
 
-const QuizSection = () => {
+interface QuizSectionProps {
+  onQuizComplete?: (result: { stream: string; scores: Record<string, number> }) => void;
+}
+
+const QuizSection = ({ onQuizComplete }: QuizSectionProps) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [answers, setAnswers] = useLocalStorage<Record<number, string>>('quiz-answers', {});
   const [showResult, setShowResult] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string>("");
+  const [quizStartTime, setQuizStartTime] = useState<number | null>(null);
+  const { toast } = useToast();
+
+  // Initialize quiz start time and restore selected option
+  useEffect(() => {
+    if (!quizStartTime) {
+      setQuizStartTime(Date.now());
+    }
+    
+    // Restore selected option for current question
+    const currentAnswer = answers[questions[currentQuestion]?.id];
+    if (currentAnswer) {
+      const question = questions[currentQuestion];
+      const option = question?.options.find(opt => opt.stream === currentAnswer);
+      setSelectedOption(option?.text || "");
+    } else {
+      setSelectedOption("");
+    }
+  }, [currentQuestion, answers, quizStartTime]);
 
   const handleAnswer = (option: { text: string; stream: string; weight: number }) => {
     setSelectedOption(option.text);
@@ -84,25 +109,28 @@ const QuizSection = () => {
       }
     });
 
+    const result = getRecommendedStreamFromScores(scores);
+    
+    // Calculate time taken
+    const timeTaken = quizStartTime ? Math.round((Date.now() - quizStartTime) / 1000) : 0;
+    
     setShowResult(true);
+    onQuizComplete?.(result);
+    
+    toast({
+      title: "Quiz Completed! 🎉",
+      description: `You completed the quiz in ${Math.floor(timeTaken / 60)}:${(timeTaken % 60)
+        .toString()
+        .padStart(2, '0')} minutes. Your recommended stream is ${result.stream}.`
+    });
   };
 
-  const getRecommendedStream = () => {
-    const scores: Record<string, number> = { science: 0, arts: 0, commerce: 0, vocational: 0 };
-    
-    Object.entries(answers).forEach(([questionId, stream]) => {
-      const question = questions.find(q => q.id === parseInt(questionId));
-      const option = question?.options.find(opt => opt.stream === stream);
-      if (option) {
-        scores[stream] += option.weight;
-      }
-    });
-
+  const getRecommendedStreamFromScores = (scores: Record<string, number>) => {
     const maxScore = Math.max(...Object.values(scores));
-    const recommendedStream = Object.keys(scores).find(key => scores[key] === maxScore);
+    const recommendedStream = Object.keys(scores).find(key => scores[key] === maxScore) as keyof typeof streamInfo;
     
     return {
-      stream: recommendedStream,
+      stream: recommendedStream || 'science',
       scores
     };
   };
@@ -135,7 +163,17 @@ const QuizSection = () => {
   };
 
   if (showResult) {
-    const result = getRecommendedStream();
+    const scores: Record<string, number> = { science: 0, arts: 0, commerce: 0, vocational: 0 };
+    
+    Object.entries(answers).forEach(([questionId, stream]) => {
+      const question = questions.find(q => q.id === parseInt(questionId));
+      const option = question?.options.find(opt => opt.stream === stream);
+      if (option) {
+        scores[stream] += option.weight;
+      }
+    });
+
+    const result = getRecommendedStreamFromScores(scores);
     const streamDetails = streamInfo[result.stream as keyof typeof streamInfo];
 
     return (
@@ -171,9 +209,15 @@ const QuizSection = () => {
                     setCurrentQuestion(0);
                     setAnswers({});
                     setSelectedOption("");
+                    setQuizStartTime(Date.now());
+                    toast({
+                      title: "Quiz Reset",
+                      description: "You can now retake the quiz with fresh questions."
+                    });
                   }}
                   variant="outline"
                 >
+                  <RotateCcw className="mr-2 h-4 w-4" />
                   Retake Quiz
                 </Button>
                 <Button className="bg-gradient-hero">
