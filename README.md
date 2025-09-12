@@ -1,73 +1,129 @@
-# Welcome to your Lovable project
+# EduPath Finder
 
-## Project info
+A full-stack application to help students discover their ideal career paths and educational opportunities.
 
-**URL**: https://lovable.dev/projects/62d513fa-78a2-41de-af4f-f12dcb370168
+## Project Structure
 
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/62d513fa-78a2-41de-af4f-f12dcb370168) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+edupath-finder/
+├── frontend/           # React frontend application
+│   ├── public/         # Static files
+│   └── src/            # React source code
+│       ├── components/ # Reusable UI components
+│       ├── pages/      # Page components
+│       └── ...
+└── backend/            # Node.js/Express backend
+    └── src/
+        ├── config/     # Configuration files
+        ├── controllers/# Request handlers
+        ├── models/     # Database models
+        ├── routes/     # API routes
+        ├── middleware/ # Custom middleware
+        └── ...
 ```
 
-**Edit a file directly in GitHub**
+## Getting Started
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Prerequisites
 
-**Use GitHub Codespaces**
+- Node.js (v16 or later)
+- npm (v8 or later) or yarn
+- MongoDB (or MongoDB Atlas)
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Installation
 
-## What technologies are used for this project?
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd edupath-finder
+   ```
 
-This project is built with:
+2. **Install dependencies**
+   ```bash
+   # Install root dependencies
+   npm install
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+   # Install frontend dependencies
+   cd frontend
+   npm install
 
-## How can I deploy this project?
+   # Install backend dependencies
+   cd ../backend
+   npm install
+   ```
 
-Simply open [Lovable](https://lovable.dev/projects/62d513fa-78a2-41de-af4f-f12dcb370168) and click on Share -> Publish.
+3. **Set up environment variables**
+   - Create `.env` files in both `frontend` and `backend` directories
+   - See `.env.example` files for required variables
 
-## Can I connect a custom domain to my Lovable project?
+### Running the Application
 
-Yes, you can!
+1. **Start the development servers**
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+   From the project root:
+   ```bash
+   # Start both frontend and backend in development mode
+   npm run dev
+   ```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+   Or start them separately:
+   ```bash
+   # Frontend only (runs on http://localhost:5173)
+   cd frontend
+   npm run dev
+
+   # Backend only (runs on http://localhost:5000)
+   cd ../backend
+   npm run dev
+   ```
+
+2. **Build for production**
+   ```bash
+   # Build both frontend and backend
+   npm run build
+   
+   # Start production server
+   npm start
+   ```
+
+## Development
+
+### Frontend
+
+- Built with React, TypeScript, and Vite
+- Uses Shadcn UI components
+- State management with React Query
+- Form handling with React Hook Form
+
+### Backend
+
+- Built with Node.js and Express
+- MongoDB with Mongoose ODM
+- RESTful API architecture
+- JWT authentication
+
+## Environment Variables
+
+### Frontend (`.env`)
+```
+VITE_API_URL=http://localhost:5000/api
+# Add other frontend environment variables here
+```
+
+### Backend (`.env`)
+```
+PORT=5000
+NODE_ENV=development
+MONGODB_URI=mongodb://localhost:27017/edupath_finder
+JWT_SECRET=your_jwt_secret_key_here
+JWT_EXPIRES_IN=30d
+FRONTEND_URL=http://localhost:5173
+```
+
+## API Documentation
+
+API documentation is available at `/api-docs` when running in development mode.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
